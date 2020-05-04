@@ -14,17 +14,27 @@ app.use('/', function(request, response){
 	response.render('index.html')
 })
 
+usuarios_logados = []
 mensagens = []
 
 io.on('connection', function(socket){
-	console.log('Usuario conectado')
-
-	socket.emit('carrega_historico', mensagens)
+	socket.on('logado', function(usuario){
+		usuarios_logados.push(usuario)
+		socket.broadcast.emit('usuario_logado', usuario)
+	})
 
 	socket.on('envia_mensagem', function(dados){
 		mensagens.push(dados)
 		socket.broadcast.emit('mensagem_recebida', dados)
 	})
+
+	socket.on('logout', function(usuario){
+		usuarios_logados.splice(usuarios_logados.indexOf(usuario), 1)
+		socket.broadcast.emit('usuario_desconectado', usuario)
+	})
+
+	socket.emit('carrega_usuarios', usuarios_logados)
+	socket.emit('carrega_historico', mensagens)
 })
 
 var porta = process.env.PORT || 3000;

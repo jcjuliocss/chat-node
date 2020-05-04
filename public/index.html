@@ -15,6 +15,10 @@
 		</form>
 	</div>
 
+	<div id="usuarios_logados" style="display: none;" class="logados">
+		<p>Usuários conectados</p>
+	</div>
+
 	<div id="chat_div" style="display: none;" class="chat-div">
 		<div id="historico_mensagens" class="historico">
 		
@@ -27,9 +31,8 @@
 	</div>
 
 	<script type="text/javascript">
-		usuario = ''
-
-		socket = io('https://node-first-chat.herokuapp.com/')
+		//socket = io('https://node-first-chat.herokuapp.com/')
+		socket = io('http://localhost:3000')
 
 		socket.on('mensagem_recebida', function(mensagem){
 			atualiza_lista_mensagens(mensagem)
@@ -41,14 +44,42 @@
 			}
 		})
 
+		socket.on('usuario_logado', function(usuario_conectado){
+			atualiza_lista_usuarios(usuario_conectado)
+		})
+
+		socket.on('carrega_usuarios', function(usuarios){
+			for(usuario_conectado of usuarios){
+				atualiza_lista_usuarios(usuario_conectado)
+			}
+		})
+
+		window.addEventListener("beforeunload", function(){
+			usuario_logout = $('#usuario').val()
+		  	socket.emit('logout', usuario_logout)
+		});
+
+		socket.on('usuario_desconectado', function(usuario_logout){
+			$('#usuarios_logados').remove('.' + usuario_logout)
+		})
+
 		function entrar(event){
 			event.preventDefault()
 
 			usuario = $('#usuario').val()
 
-			$('#chat_div').prepend('<p id="nome_usuario"><b>Olá ' + usuario + '</p>')
+			usuario_obj = {
+				nome: usuario
+			}
+
+			$('#chat_div').prepend('<p id="nome_usuario"><b>Olá ' + usuario_obj.nome + '</p>')
 			$('#usuario_div').css('display', 'none')
 			$('#chat_div').css('display', 'block')
+			$('#usuarios_logados').css('display', 'block')
+
+			atualiza_lista_usuarios(usuario_obj)
+
+			socket.emit('logado', usuario_obj)
 		}
 
 		function enviar_mensagem(event){
@@ -74,7 +105,11 @@
 		}
 
 		function atualiza_lista_mensagens(dados){
-			$('#historico_mensagens').append('<div><b>' + dados.usuario + '</b> diz: ' + dados.mensagem + '</div>')
+			$('#historico_mensagens').append('<div class="msg-historico"><b>' + dados.usuario + '</b> diz: ' + dados.mensagem + '</div>')
+		}
+
+		function atualiza_lista_usuarios(usuario){
+			$('#usuarios_logados').append('<div class="' + usuario.nome + '"><b>' + usuario.nome + '</b></div>')
 		}
 	</script>
 </body>
