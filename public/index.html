@@ -29,7 +29,7 @@
 	<script type="text/javascript">
 		usuario = ''
 
-		socket = io('http://localhost:3000')
+		socket = io('https://node-first-chat.herokuapp.com/')
 
 		socket.on('mensagem_recebida', function(mensagem){
 			atualiza_lista_mensagens(mensagem)
