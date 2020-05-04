@@ -1,0 +1,39 @@
+*{
+	align-items: center;
+	justify-content: center;
+}
+
+.chat-div{
+	text-align: center;
+}
+
+.chat-div .historico{
+	border: 1px solid black;
+	border-radius: 4px;
+	width: 50%;
+	margin: auto;
+	text-align: left;
+}
+
+.chat-div form .msg-area{
+	width: 50%;
+	height: 10%;
+	border-radius: 4px;
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
+
+.chat-div form .btn-enviar{
+	width: 50%;
+	height: 40px;
+	border-radius: 4px;
+	cursor: pointer;
+	border: 0 auto;
+	box-shadow: 5px 5px 5px #888888;
+
+	transition: opacity 0.2s;
+}
+
+.chat-div form .btn-enviar:hover{
+	opacity: 0.8;
+}

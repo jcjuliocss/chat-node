@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chat</title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+	<div id="usuario_div">
+		<form onsubmit="entrar(event)">
+			<p><b>Para iniciar, digite seu nome:</b></p>
+			<input type="text" id="usuario" class="usuario-input">
+			<button type="submit" class="button-entrar">Entrar</button>
+		</form>
+	</div>
+
+	<div id="chat_div" style="display: none;" class="chat-div">
+		<div id="historico_mensagens" class="historico">
+		
+		</div>
+
+		<form id="chat" onsubmit="enviar_mensagem(event)">
+			<textarea id="msg" class="msg-area" placeholder="Digite a mensagem" maxlength="300"></textarea><br>
+			<button type="submit" class="btn-enviar">Enviar</button>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		usuario = ''
+
+		socket = io('http://localhost:3000')
+
+		socket.on('mensagem_recebida', function(mensagem){
+			atualiza_lista_mensagens(mensagem)
+		})
+
+		socket.on('carrega_historico', function(historico){
+			for(i = 0;i<historico.length;i++){
+				atualiza_lista_mensagens(historico[i])
+			}
+		})
+
+		function entrar(event){
+			event.preventDefault()
+
+			usuario = $('#usuario').val()
+
+			$('#chat_div').prepend('<p id="nome_usuario"><b>Olá ' + usuario + '</p>')
+			$('#usuario_div').css('display', 'none')
+			$('#chat_div').css('display', 'block')
+		}
+
+		function enviar_mensagem(event){
+			event.preventDefault()
+
+			usuario = $('#usuario').val()
+			mensagem = $('#msg').val()
+
+			if(usuario.length > 0 && mensagem.length > 0){
+				dados = {
+					usuario: usuario,
+					mensagem: mensagem
+				}
+			}
+
+			atualiza_lista_mensagens(dados)
+
+			$('#msg').val('')
+
+			$('#msg').focus()
+
+			socket.emit('envia_mensagem', dados)
+		}
+
+		function atualiza_lista_mensagens(dados){
+			$('#historico_mensagens').append('<div><b>' + dados.usuario + '</b> diz: ' + dados.mensagem + '</div>')
+		}
+	</script>
+</body>
+</html>
