@@ -25,7 +25,7 @@
 		</div>
 
 		<form id="chat" onsubmit="enviar_mensagem(event)">
-			<textarea id="msg" class="msg-area" placeholder="Digite a mensagem" maxlength="300"></textarea><br>
+			<textarea id="msg" class="msg-area" placeholder="Digite a mensagem" maxlength="300" onkeypress="testa_envio(event)"></textarea><br>
 			<button type="submit" class="btn-enviar">Enviar</button>
 		</form>
 	</div>
@@ -60,7 +60,10 @@
 		});
 
 		socket.on('usuario_desconectado', function(usuario_logout){
-			$('#usuarios_logados').remove('.' + usuario_logout)
+			$('#usuarios_logados').html('<p>Usuários conectados</p>')
+			for(usuario_conectado of usuarios){
+				atualiza_lista_usuarios(usuario_conectado)
+			}
 		})
 
 		function entrar(event){
@@ -77,8 +80,6 @@
 			$('#chat_div').css('display', 'block')
 			$('#usuarios_logados').css('display', 'block')
 
-			atualiza_lista_usuarios(usuario_obj)
-
 			socket.emit('logado', usuario_obj)
 		}
 
@@ -93,15 +94,15 @@
 					usuario: usuario,
 					mensagem: mensagem
 				}
+			}else{
+				return
 			}
 
-			atualiza_lista_mensagens(dados)
+			socket.emit('envia_mensagem', dados)
 
 			$('#msg').val('')
 
 			$('#msg').focus()
-
-			socket.emit('envia_mensagem', dados)
 		}
 
 		function atualiza_lista_mensagens(dados){
@@ -110,6 +111,12 @@
 
 		function atualiza_lista_usuarios(usuario){
 			$('#usuarios_logados').append('<div class="' + usuario.nome + '"><b>' + usuario.nome + '</b></div>')
+		}
+
+		function testa_envio(event){
+			if(event.key == 'Enter'){
+				enviar_mensagem(event)
+			}
 		}
 	</script>
 </body>

@@ -19,22 +19,22 @@ mensagens = []
 
 io.on('connection', function(socket){
 	socket.on('logado', function(usuario){
+		usuario.pos = usuarios_logados.length
 		usuarios_logados.push(usuario)
 		socket.broadcast.emit('usuario_logado', usuario)
+		socket.emit('carrega_usuarios', usuarios_logados)
+		socket.emit('carrega_historico', mensagens)
 	})
 
 	socket.on('envia_mensagem', function(dados){
 		mensagens.push(dados)
-		socket.broadcast.emit('mensagem_recebida', dados)
+		io.emit('mensagem_recebida', dados)
 	})
 
 	socket.on('logout', function(usuario){
-		usuarios_logados.splice(usuarios_logados.indexOf(usuario), 1)
+		usuarios_logados.splice(usuario.pos, 1)
 		socket.broadcast.emit('usuario_desconectado', usuario)
 	})
-
-	socket.emit('carrega_usuarios', usuarios_logados)
-	socket.emit('carrega_historico', mensagens)
 })
 
 var porta = process.env.PORT || 3000;
